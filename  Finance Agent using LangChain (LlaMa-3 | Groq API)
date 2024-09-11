@@ -1,0 +1,1008 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPrYPQwaF2IRZpazRDonu3W",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Yasira28/Car-Price-Prediction/blob/main/%20Finance%20Agent%20using%20LangChain%20(LlaMa-3%20%7C%20Groq%20API)\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "1.**Load LLM**\n"
+      ],
+      "metadata": {
+        "id": "QkNwhrmbSIOu"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 102,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "LqaTXb1s5-40",
+        "outputId": "5337324a-a1d6-464d-c971-0ec7b1d01f4c"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: langchain_groq in /usr/local/lib/python3.10/dist-packages (0.1.9)\n",
+            "Requirement already satisfied: groq<1,>=0.4.1 in /usr/local/lib/python3.10/dist-packages (from langchain_groq) (0.11.0)\n",
+            "Requirement already satisfied: langchain-core<0.3.0,>=0.2.26 in /usr/local/lib/python3.10/dist-packages (from langchain_groq) (0.2.39)\n",
+            "Requirement already satisfied: anyio<5,>=3.5.0 in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain_groq) (3.7.1)\n",
+            "Requirement already satisfied: distro<2,>=1.7.0 in /usr/lib/python3/dist-packages (from groq<1,>=0.4.1->langchain_groq) (1.7.0)\n",
+            "Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain_groq) (0.27.2)\n",
+            "Requirement already satisfied: pydantic<3,>=1.9.0 in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain_groq) (2.8.2)\n",
+            "Requirement already satisfied: sniffio in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain_groq) (1.3.1)\n",
+            "Requirement already satisfied: typing-extensions<5,>=4.7 in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain_groq) (4.12.2)\n",
+            "Requirement already satisfied: PyYAML>=5.3 in /usr/local/lib/python3.10/dist-packages (from langchain-core<0.3.0,>=0.2.26->langchain_groq) (6.0.2)\n",
+            "Requirement already satisfied: jsonpatch<2.0,>=1.33 in /usr/local/lib/python3.10/dist-packages (from langchain-core<0.3.0,>=0.2.26->langchain_groq) (1.33)\n",
+            "Requirement already satisfied: langsmith<0.2.0,>=0.1.112 in /usr/local/lib/python3.10/dist-packages (from langchain-core<0.3.0,>=0.2.26->langchain_groq) (0.1.117)\n",
+            "Requirement already satisfied: packaging<25,>=23.2 in /usr/local/lib/python3.10/dist-packages (from langchain-core<0.3.0,>=0.2.26->langchain_groq) (24.1)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<9.0.0,>=8.1.0 in /usr/local/lib/python3.10/dist-packages (from langchain-core<0.3.0,>=0.2.26->langchain_groq) (8.5.0)\n",
+            "Requirement already satisfied: idna>=2.8 in /usr/local/lib/python3.10/dist-packages (from anyio<5,>=3.5.0->groq<1,>=0.4.1->langchain_groq) (3.8)\n",
+            "Requirement already satisfied: exceptiongroup in /usr/local/lib/python3.10/dist-packages (from anyio<5,>=3.5.0->groq<1,>=0.4.1->langchain_groq) (1.2.2)\n",
+            "Requirement already satisfied: certifi in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->groq<1,>=0.4.1->langchain_groq) (2024.8.30)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->groq<1,>=0.4.1->langchain_groq) (1.0.5)\n",
+            "Requirement already satisfied: h11<0.15,>=0.13 in /usr/local/lib/python3.10/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->groq<1,>=0.4.1->langchain_groq) (0.14.0)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.10/dist-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.3.0,>=0.2.26->langchain_groq) (3.0.0)\n",
+            "Requirement already satisfied: orjson<4.0.0,>=3.9.14 in /usr/local/lib/python3.10/dist-packages (from langsmith<0.2.0,>=0.1.112->langchain-core<0.3.0,>=0.2.26->langchain_groq) (3.10.7)\n",
+            "Requirement already satisfied: requests<3,>=2 in /usr/local/lib/python3.10/dist-packages (from langsmith<0.2.0,>=0.1.112->langchain-core<0.3.0,>=0.2.26->langchain_groq) (2.32.3)\n",
+            "Requirement already satisfied: annotated-types>=0.4.0 in /usr/local/lib/python3.10/dist-packages (from pydantic<3,>=1.9.0->groq<1,>=0.4.1->langchain_groq) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.20.1 in /usr/local/lib/python3.10/dist-packages (from pydantic<3,>=1.9.0->groq<1,>=0.4.1->langchain_groq) (2.20.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests<3,>=2->langsmith<0.2.0,>=0.1.112->langchain-core<0.3.0,>=0.2.26->langchain_groq) (3.3.2)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests<3,>=2->langsmith<0.2.0,>=0.1.112->langchain-core<0.3.0,>=0.2.26->langchain_groq) (2.0.7)\n"
+          ]
+        }
+      ],
+      "source": [
+        "pip install langchain_groq"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_groq import ChatGroq\n",
+        "\n",
+        "llama3 = ChatGroq(api_key=\"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\", model=\"llama3-8b-8192\")\n",
+        "\n",
+        "llama3"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "6ad9s_Mw6w7r",
+        "outputId": "9bed3a93-b4f6-41a4-95dc-02f9566578ac"
+      },
+      "execution_count": 69,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "ChatGroq(client=<groq.resources.chat.completions.Completions object at 0x7d3eb95e5ab0>, async_client=<groq.resources.chat.completions.AsyncCompletions object at 0x7d3eb95d9870>, model_name='llama3-8b-8192', groq_api_key=SecretStr('**********'))"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 69
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "llama3.invoke(\"Hello, How are you?\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "yDdL0Pdp7TAJ",
+        "outputId": "bd5ffc01-7f61-47ad-aed7-990798e27cc9"
+      },
+      "execution_count": 70,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "AIMessage(content=\"Hello! I'm just an AI, so I don't have emotions or feelings like humans do, but I'm functioning properly and ready to assist you with any questions or tasks you may have! How can I help you today?\", response_metadata={'token_usage': {'completion_tokens': 47, 'prompt_tokens': 16, 'total_tokens': 63, 'completion_time': 0.039166667, 'prompt_time': 0.004225521, 'queue_time': 0.931514603, 'total_time': 0.043392188}, 'model_name': 'llama3-8b-8192', 'system_fingerprint': 'fp_179b0f92c9', 'finish_reason': 'stop', 'logprobs': None}, id='run-65f71f51-ad9d-4f4b-8e67-1e018cdb8c7f-0', usage_metadata={'input_tokens': 16, 'output_tokens': 47, 'total_tokens': 63})"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 70
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "2.**Define Tools**"
+      ],
+      "metadata": {
+        "id": "e8SpTsHs7iOv"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install yfinance\n",
+        "from langchain_core.tools import tool, StructuredTool\n",
+        "from datetime import date\n",
+        "import yfinance as yf # Added import statement\n",
+        "\n",
+        "@tool\n",
+        "def company_information(ticker: str) -> dict:\n",
+        "    \"\"\"Use this tool to retrieve company information like address, industry, sector, company officers, business summary, website,\n",
+        "       marketCap, current price, ebitda, total debt, total revenue, debt-to-equity, etc.\"\"\"\n",
+        "    ticker_obj = yf.Ticker(ticker)\n",
+        "    ticker_info = ticker_obj.get_info()\n",
+        "\n",
+        "    return ticker_info\n",
+        "\n",
+        "@tool\n",
+        "def last_dividend_and_earnings_date(ticker: str) -> dict:\n",
+        "    \"\"\"\n",
+        "    Use this tool to retrieve company's last dividend date and earnings release dates.\n",
+        "    It does not provide information about historical dividend yields.\n",
+        "    \"\"\"\n",
+        "    ticker_obj = yf.Ticker(ticker)\n",
+        "\n",
+        "    return ticker_obj.get_calendar()\n",
+        "\n",
+        "@tool\n",
+        "def summary_of_mutual_fund_holders(ticker: str) -> dict:\n",
+        "    \"\"\"\n",
+        "    Use this tool to retrieve company's top mutual fund holders.\n",
+        "    It also returns their percentage of share, stock count and value of holdings.\n",
+        "    \"\"\"\n",
+        "    ticker_obj = yf.Ticker(ticker)\n",
+        "    mf_holders = ticker_obj.get_mutualfund_holders()\n",
+        "\n",
+        "    return mf_holders.to_dict(orient=\"records\")\n",
+        "\n",
+        "@tool\n",
+        "def summary_of_institutional_holders(ticker: str) -> dict:\n",
+        "    \"\"\"\n",
+        "    Use this tool to retrieve company's top institutional holders.\n",
+        "    It also returns their percentage of share, stock count and value of holdings.\n",
+        "    \"\"\"\n",
+        "    ticker_obj = yf.Ticker(ticker)\n",
+        "    inst_holders = ticker_obj.get_institutional_holders()\n",
+        "\n",
+        "    return inst_holders.to_dict(orient=\"records\")\n",
+        "\n",
+        "@tool\n",
+        "def stock_grade_updrages_downgrades(ticker: str) -> dict:\n",
+        "    \"\"\"\n",
+        "    Use this to retrieve grade ratings upgrades and downgrades details of particular stock.\n",
+        "    It'll provide name of firms along with 'To Grade' and 'From Grade' details. Grade date is also provided.\n",
+        "    \"\"\"\n",
+        "    ticker_obj = yf.Ticker(ticker)\n",
+        "\n",
+        "    curr_year = date.today().year\n",
+        "\n",
+        "    upgrades_downgrades = ticker_obj.get_upgrades_downgrades()\n",
+        "    upgrades_downgrades = upgrades_downgrades.loc[upgrades_downgrades.index > f\"{curr_year}-01-01\"]\n",
+        "    upgrades_downgrades = upgrades_downgrades[upgrades_downgrades[\"Action\"].isin([\"up\", \"down\"])]\n",
+        "\n",
+        "    return upgrades_downgrades.to_dict(orient=\"records\")\n",
+        "\n",
+        "@tool\n",
+        "def stock_splits_history(ticker: str) -> dict:\n",
+        "    \"\"\"\n",
+        "    Use this tool to retrieve company's historical stock splits data.\n",
+        "    \"\"\"\n",
+        "    ticker_obj = yf.Ticker(ticker)\n",
+        "    hist_splits = ticker_obj.get_splits()\n",
+        "\n",
+        "    return hist_splits.to_dict()\n",
+        "\n",
+        "@tool\n",
+        "def stock_news(ticker: str) -> dict:\n",
+        "    \"\"\"\n",
+        "    Use this to retrieve latest news articles discussing particular stock ticker.\n",
+        "    \"\"\"\n",
+        "    ticker_obj = yf.Ticker(ticker)\n",
+        "\n",
+        "    return ticker_obj.get_news()\n",
+        "\n",
+        "\n",
+        "#stock_news_tool = StructuredTool.from_function(stock_news)\n",
+        "\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "tJb-uefP7fh5",
+        "outputId": "be37e991-3312-43e9-955f-11cc424a31da"
+      },
+      "execution_count": 81,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: yfinance in /usr/local/lib/python3.10/dist-packages (0.2.43)\n",
+            "Requirement already satisfied: pandas>=1.3.0 in /usr/local/lib/python3.10/dist-packages (from yfinance) (2.1.4)\n",
+            "Requirement already satisfied: numpy>=1.16.5 in /usr/local/lib/python3.10/dist-packages (from yfinance) (1.26.4)\n",
+            "Requirement already satisfied: requests>=2.31 in /usr/local/lib/python3.10/dist-packages (from yfinance) (2.32.3)\n",
+            "Requirement already satisfied: multitasking>=0.0.7 in /usr/local/lib/python3.10/dist-packages (from yfinance) (0.0.11)\n",
+            "Requirement already satisfied: lxml>=4.9.1 in /usr/local/lib/python3.10/dist-packages (from yfinance) (4.9.4)\n",
+            "Requirement already satisfied: platformdirs>=2.0.0 in /usr/local/lib/python3.10/dist-packages (from yfinance) (4.2.2)\n",
+            "Requirement already satisfied: pytz>=2022.5 in /usr/local/lib/python3.10/dist-packages (from yfinance) (2024.1)\n",
+            "Requirement already satisfied: frozendict>=2.3.4 in /usr/local/lib/python3.10/dist-packages (from yfinance) (2.4.4)\n",
+            "Requirement already satisfied: peewee>=3.16.2 in /usr/local/lib/python3.10/dist-packages (from yfinance) (3.17.6)\n",
+            "Requirement already satisfied: beautifulsoup4>=4.11.1 in /usr/local/lib/python3.10/dist-packages (from yfinance) (4.12.3)\n",
+            "Requirement already satisfied: html5lib>=1.1 in /usr/local/lib/python3.10/dist-packages (from yfinance) (1.1)\n",
+            "Requirement already satisfied: soupsieve>1.2 in /usr/local/lib/python3.10/dist-packages (from beautifulsoup4>=4.11.1->yfinance) (2.6)\n",
+            "Requirement already satisfied: six>=1.9 in /usr/local/lib/python3.10/dist-packages (from html5lib>=1.1->yfinance) (1.16.0)\n",
+            "Requirement already satisfied: webencodings in /usr/local/lib/python3.10/dist-packages (from html5lib>=1.1->yfinance) (0.5.1)\n",
+            "Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.10/dist-packages (from pandas>=1.3.0->yfinance) (2.8.2)\n",
+            "Requirement already satisfied: tzdata>=2022.1 in /usr/local/lib/python3.10/dist-packages (from pandas>=1.3.0->yfinance) (2024.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests>=2.31->yfinance) (3.3.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests>=2.31->yfinance) (3.8)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests>=2.31->yfinance) (2.0.7)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests>=2.31->yfinance) (2024.8.30)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "3. **Define Agent (LLM + Tools)**"
+      ],
+      "metadata": {
+        "id": "8keHQTm2CJZo"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.agents import AgentExecutor, create_tool_calling_agent\n",
+        "from langchain_groq import ChatGroq\n",
+        "from langchain.prompts import ChatPromptTemplate\n",
+        "from langchain_core.prompts import MessagesPlaceholder\n",
+        "\n",
+        "tools = [\n",
+        "         company_information,\n",
+        "         last_dividend_and_earnings_dates,\n",
+        "         stock_splits_history,\n",
+        "         summary_of_mutual_fund_holders,\n",
+        "         summary_of_institutional_holders,\n",
+        "         stock_grade_updrages_downgrades,\n",
+        "         stock_news\n",
+        "]\n",
+        "\n",
+        "prompt = ChatPromptTemplate.from_messages(\n",
+        "    [\n",
+        "        (\n",
+        "            \"system\",\n",
+        "            \"You are a helpful assistant. Try to answer user query using available tools.\",\n",
+        "        ),\n",
+        "        MessagesPlaceholder(variable_name=\"messages\"),\n",
+        "        MessagesPlaceholder(variable_name=\"agent_scratchpad\"),\n",
+        "    ]\n",
+        ")\n",
+        "\n",
+        "llama3 = ChatGroq(api_key=\"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\", model=\"llama3-8b-8192\", temperature=0)\n",
+        "\n",
+        "finance_agent = create_tool_calling_agent(llama3, tools, prompt)\n",
+        "\n",
+        "finance_agent_executor = AgentExecutor(agent=finance_agent, tools=tools, verbose=True)\n"
+      ],
+      "metadata": {
+        "id": "QVvOUV6U-rg8"
+      },
+      "execution_count": 82,
+      "outputs": []
+    },
+    {
+      "source": [
+        "!pip install langchain langchain-groq langchain-core"
+      ],
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "wSdz5MnVKAWO",
+        "outputId": "aa34a4b5-1c22-4984-c97a-c208773c4c01"
+      },
+      "execution_count": 83,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: langchain in /usr/local/lib/python3.10/dist-packages (0.2.16)\n",
+            "Requirement already satisfied: langchain-groq in /usr/local/lib/python3.10/dist-packages (0.1.9)\n",
+            "Requirement already satisfied: langchain-core in /usr/local/lib/python3.10/dist-packages (0.2.39)\n",
+            "Requirement already satisfied: PyYAML>=5.3 in /usr/local/lib/python3.10/dist-packages (from langchain) (6.0.2)\n",
+            "Requirement already satisfied: SQLAlchemy<3,>=1.4 in /usr/local/lib/python3.10/dist-packages (from langchain) (2.0.32)\n",
+            "Requirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /usr/local/lib/python3.10/dist-packages (from langchain) (3.10.5)\n",
+            "Requirement already satisfied: async-timeout<5.0.0,>=4.0.0 in /usr/local/lib/python3.10/dist-packages (from langchain) (4.0.3)\n",
+            "Requirement already satisfied: langchain-text-splitters<0.3.0,>=0.2.0 in /usr/local/lib/python3.10/dist-packages (from langchain) (0.2.4)\n",
+            "Requirement already satisfied: langsmith<0.2.0,>=0.1.17 in /usr/local/lib/python3.10/dist-packages (from langchain) (0.1.117)\n",
+            "Requirement already satisfied: numpy<2,>=1 in /usr/local/lib/python3.10/dist-packages (from langchain) (1.26.4)\n",
+            "Requirement already satisfied: pydantic<3,>=1 in /usr/local/lib/python3.10/dist-packages (from langchain) (2.8.2)\n",
+            "Requirement already satisfied: requests<3,>=2 in /usr/local/lib/python3.10/dist-packages (from langchain) (2.32.3)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<9.0.0,>=8.1.0 in /usr/local/lib/python3.10/dist-packages (from langchain) (8.5.0)\n",
+            "Requirement already satisfied: groq<1,>=0.4.1 in /usr/local/lib/python3.10/dist-packages (from langchain-groq) (0.11.0)\n",
+            "Requirement already satisfied: jsonpatch<2.0,>=1.33 in /usr/local/lib/python3.10/dist-packages (from langchain-core) (1.33)\n",
+            "Requirement already satisfied: packaging<25,>=23.2 in /usr/local/lib/python3.10/dist-packages (from langchain-core) (24.1)\n",
+            "Requirement already satisfied: typing-extensions>=4.7 in /usr/local/lib/python3.10/dist-packages (from langchain-core) (4.12.2)\n",
+            "Requirement already satisfied: aiohappyeyeballs>=2.3.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (2.4.0)\n",
+            "Requirement already satisfied: aiosignal>=1.1.2 in /usr/local/lib/python3.10/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.3.1)\n",
+            "Requirement already satisfied: attrs>=17.3.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (24.2.0)\n",
+            "Requirement already satisfied: frozenlist>=1.1.1 in /usr/local/lib/python3.10/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.4.1)\n",
+            "Requirement already satisfied: multidict<7.0,>=4.5 in /usr/local/lib/python3.10/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (6.0.5)\n",
+            "Requirement already satisfied: yarl<2.0,>=1.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.9.4)\n",
+            "Requirement already satisfied: anyio<5,>=3.5.0 in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain-groq) (3.7.1)\n",
+            "Requirement already satisfied: distro<2,>=1.7.0 in /usr/lib/python3/dist-packages (from groq<1,>=0.4.1->langchain-groq) (1.7.0)\n",
+            "Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain-groq) (0.27.2)\n",
+            "Requirement already satisfied: sniffio in /usr/local/lib/python3.10/dist-packages (from groq<1,>=0.4.1->langchain-groq) (1.3.1)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.10/dist-packages (from jsonpatch<2.0,>=1.33->langchain-core) (3.0.0)\n",
+            "Requirement already satisfied: orjson<4.0.0,>=3.9.14 in /usr/local/lib/python3.10/dist-packages (from langsmith<0.2.0,>=0.1.17->langchain) (3.10.7)\n",
+            "Requirement already satisfied: annotated-types>=0.4.0 in /usr/local/lib/python3.10/dist-packages (from pydantic<3,>=1->langchain) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.20.1 in /usr/local/lib/python3.10/dist-packages (from pydantic<3,>=1->langchain) (2.20.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests<3,>=2->langchain) (3.3.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests<3,>=2->langchain) (3.8)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests<3,>=2->langchain) (2.0.7)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests<3,>=2->langchain) (2024.8.30)\n",
+            "Requirement already satisfied: greenlet!=0.4.17 in /usr/local/lib/python3.10/dist-packages (from SQLAlchemy<3,>=1.4->langchain) (3.0.3)\n",
+            "Requirement already satisfied: exceptiongroup in /usr/local/lib/python3.10/dist-packages (from anyio<5,>=3.5.0->groq<1,>=0.4.1->langchain-groq) (1.2.2)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->groq<1,>=0.4.1->langchain-groq) (1.0.5)\n",
+            "Requirement already satisfied: h11<0.15,>=0.13 in /usr/local/lib/python3.10/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->groq<1,>=0.4.1->langchain-groq) (0.14.0)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_core.messages import HumanMessage\n",
+        "\n",
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"What is address of microsoft?\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "aMjwalPBHJCK",
+        "outputId": "f3f65b7c-31f7-4960-b9e8-87fea890773b"
+      },
+      "execution_count": 84,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `company_information` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[36;1m\u001b[1;3m{'address1': 'One Microsoft Way', 'city': 'Redmond', 'state': 'WA', 'zip': '98052-6399', 'country': 'United States', 'phone': '425 882 8080', 'website': 'https://www.microsoft.com', 'industry': 'Software - Infrastructure', 'industryKey': 'software-infrastructure', 'industryDisp': 'Software - Infrastructure', 'sector': 'Technology', 'sectorKey': 'technology', 'sectorDisp': 'Technology', 'longBusinessSummary': 'Microsoft Corporation develops and supports software, services, devices and solutions worldwide. The Productivity and Business Processes segment offers office, exchange, SharePoint, Microsoft Teams, office 365 Security and Compliance, Microsoft viva, and Microsoft 365 copilot; and office consumer services, such as Microsoft 365 consumer subscriptions, Office licensed on-premises, and other office services. This segment also provides LinkedIn; and dynamics business solutions, including Dynamics 365, a set of intelligent, cloud-based applications across ERP, CRM, power apps, and power automate; and on-premises ERP and CRM applications. The Intelligent Cloud segment offers server products and cloud services, such as azure and other cloud services; SQL and windows server, visual studio, system center, and related client access licenses, as well as nuance and GitHub; and enterprise services including enterprise support services, industry solutions, and nuance professional services. The More Personal Computing segment offers Windows, including windows OEM licensing and other non-volume licensing of the Windows operating system; Windows commercial comprising volume licensing of the Windows operating system, windows cloud services, and other Windows commercial offerings; patent licensing; and windows Internet of Things; and devices, such as surface, HoloLens, and PC accessories. Additionally, this segment provides gaming, which includes Xbox hardware and content, and first- and third-party content; Xbox game pass and other subscriptions, cloud gaming, advertising, third-party disc royalties, and other cloud services; and search and news advertising, which includes Bing, Microsoft News and Edge, and third-party affiliates. The company sells its products through OEMs, distributors, and resellers; and directly through digital marketplaces, online, and retail stores. The company was founded in 1975 and is headquartered in Redmond, Washington.', 'fullTimeEmployees': 228000, 'companyOfficers': [{'maxAge': 1, 'name': 'Mr. Satya  Nadella', 'age': 56, 'title': 'Chairman & CEO', 'yearBorn': 1967, 'fiscalYear': 2023, 'totalPay': 9276400, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Bradford L. Smith LCA', 'age': 64, 'title': 'President & Vice Chairman', 'yearBorn': 1959, 'fiscalYear': 2023, 'totalPay': 3591277, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Amy E. Hood', 'age': 51, 'title': 'Executive VP & CFO', 'yearBorn': 1972, 'fiscalYear': 2023, 'totalPay': 3452196, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Judson B. Althoff', 'age': 50, 'title': 'Executive VP & Chief Commercial Officer', 'yearBorn': 1973, 'fiscalYear': 2023, 'totalPay': 3355797, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Christopher David Young', 'age': 51, 'title': 'Executive Vice President of Business Development, Strategy & Ventures', 'yearBorn': 1972, 'fiscalYear': 2023, 'totalPay': 2460507, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Alice L. Jolla', 'age': 57, 'title': 'Corporate VP & Chief Accounting Officer', 'yearBorn': 1966, 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. James Kevin Scott', 'age': 51, 'title': 'Executive VP of AI & CTO', 'yearBorn': 1972, 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Brett  Iversen', 'title': 'Vice President of Investor Relations', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Hossein  Nowbar', 'title': 'Chief Legal Officer', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Frank X. Shaw', 'title': 'Chief Communications Officer', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}], 'auditRisk': 3, 'boardRisk': 4, 'compensationRisk': 2, 'shareHolderRightsRisk': 2, 'overallRisk': 1, 'governanceEpochDate': 1725148800, 'compensationAsOfEpochDate': 1703980800, 'irWebsite': 'http://www.microsoft.com/investor/default.aspx', 'maxAge': 86400, 'priceHint': 2, 'previousClose': 405.72, 'open': 408.18, 'dayLow': 407.7, 'dayHigh': 416.33, 'regularMarketPreviousClose': 405.72, 'regularMarketOpen': 408.18, 'regularMarketDayLow': 407.7, 'regularMarketDayHigh': 416.33, 'dividendRate': 3.0, 'dividendYield': 0.0072000003, 'exDividendDate': 1723680000, 'payoutRatio': 0.2483, 'fiveYearAvgDividendYield': 0.9, 'beta': 0.896, 'trailingPE': 35.101696, 'forwardPE': 27.214191, 'volume': 19481468, 'regularMarketVolume': 19481468, 'averageVolume': 19887135, 'averageVolume10days': 17385160, 'averageDailyVolume10Day': 17385160, 'bid': 387.36, 'ask': 436.79, 'bidSize': 100, 'askSize': 100, 'marketCap': 3078765150208, 'fiftyTwoWeekLow': 309.45, 'fiftyTwoWeekHigh': 468.35, 'priceToSalesTrailing12Months': 12.560134, 'fiftyDayAverage': 426.4298, 'twoHundredDayAverage': 411.73825, 'trailingAnnualDividendRate': 3.0, 'trailingAnnualDividendYield': 0.007394262, 'currency': 'USD', 'enterpriseValue': 3101085401088, 'profitMargins': 0.35956, 'floatShares': 7422706458, 'sharesOutstanding': 7433039872, 'sharesShort': 54789102, 'sharesShortPriorMonth': 61931266, 'sharesShortPreviousMonthDate': 1721001600, 'dateShortInterest': 1723680000, 'sharesPercentSharesOut': 0.0074, 'heldPercentInsiders': 0.00054000004, 'heldPercentInstitutions': 0.73739, 'shortRatio': 2.37, 'shortPercentOfFloat': 0.0074, 'impliedSharesOutstanding': 7433039872, 'bookValue': 36.115, 'priceToBook': 11.468919, 'lastFiscalYearEnd': 1719705600, 'nextFiscalYearEnd': 1751241600, 'mostRecentQuarter': 1719705600, 'earningsQuarterlyGrowth': 0.097, 'netIncomeToCommon': 88135999488, 'trailingEps': 11.8, 'forwardEps': 15.22, 'pegRatio': 2.17, 'lastSplitFactor': '2:1', 'lastSplitDate': 1045526400, 'enterpriseToRevenue': 12.651, 'enterpriseToEbitda': 23.959, '52WeekChange': 0.23251796, 'SandP52WeekChange': 0.23012733, 'lastDividendValue': 0.75, 'lastDividendDate': 1723680000, 'exchange': 'NMS', 'quoteType': 'EQUITY', 'symbol': 'MSFT', 'underlyingSymbol': 'MSFT', 'shortName': 'Microsoft Corporation', 'longName': 'Microsoft Corporation', 'firstTradeDateEpochUtc': 511108200, 'timeZoneFullName': 'America/New_York', 'timeZoneShortName': 'EDT', 'uuid': 'b004b3ec-de24-385e-b2c1-923f10d3fb62', 'messageBoardId': 'finmb_21835', 'gmtOffSetMilliseconds': -14400000, 'currentPrice': 414.2, 'targetHighPrice': 600.0, 'targetLowPrice': 440.0, 'targetMeanPrice': 496.67, 'targetMedianPrice': 500.0, 'recommendationMean': 1.7, 'recommendationKey': 'buy', 'numberOfAnalystOpinions': 47, 'totalCash': 75531001856, 'totalCashPerShare': 10.162, 'ebitda': 129433001984, 'totalDebt': 97851998208, 'quickRatio': 1.141, 'currentRatio': 1.275, 'totalRevenue': 245122007040, 'debtToEquity': 36.447, 'revenuePerShare': 32.986, 'returnOnAssets': 0.14802, 'returnOnEquity': 0.37133, 'freeCashflow': 56705249280, 'operatingCashflow': 118547996672, 'earningsGrowth': 0.097, 'revenueGrowth': 0.152, 'grossMargins': 0.69764, 'ebitdaMargins': 0.52804, 'operatingMargins': 0.43143, 'financialCurrency': 'USD', 'trailingPegRatio': 2.2338}\u001b[0m\u001b[32;1m\u001b[1;3mThe address of Microsoft is One Microsoft Way, Redmond, WA 98052-6399, United States.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "GAkYccDtHlR5",
+        "outputId": "d8a14be6-bef2-48a7-a722-647cfe54e182"
+      },
+      "execution_count": 85,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "The address of Microsoft is One Microsoft Way, Redmond, WA 98052-6399, United States.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"What is last close price of microsoft?\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "SrkafSfKLysH",
+        "outputId": "3a22fa8a-8ee6-4901-b603-0df763f07f04"
+      },
+      "execution_count": 86,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `company_information` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[36;1m\u001b[1;3m{'address1': 'One Microsoft Way', 'city': 'Redmond', 'state': 'WA', 'zip': '98052-6399', 'country': 'United States', 'phone': '425 882 8080', 'website': 'https://www.microsoft.com', 'industry': 'Software - Infrastructure', 'industryKey': 'software-infrastructure', 'industryDisp': 'Software - Infrastructure', 'sector': 'Technology', 'sectorKey': 'technology', 'sectorDisp': 'Technology', 'longBusinessSummary': 'Microsoft Corporation develops and supports software, services, devices and solutions worldwide. The Productivity and Business Processes segment offers office, exchange, SharePoint, Microsoft Teams, office 365 Security and Compliance, Microsoft viva, and Microsoft 365 copilot; and office consumer services, such as Microsoft 365 consumer subscriptions, Office licensed on-premises, and other office services. This segment also provides LinkedIn; and dynamics business solutions, including Dynamics 365, a set of intelligent, cloud-based applications across ERP, CRM, power apps, and power automate; and on-premises ERP and CRM applications. The Intelligent Cloud segment offers server products and cloud services, such as azure and other cloud services; SQL and windows server, visual studio, system center, and related client access licenses, as well as nuance and GitHub; and enterprise services including enterprise support services, industry solutions, and nuance professional services. The More Personal Computing segment offers Windows, including windows OEM licensing and other non-volume licensing of the Windows operating system; Windows commercial comprising volume licensing of the Windows operating system, windows cloud services, and other Windows commercial offerings; patent licensing; and windows Internet of Things; and devices, such as surface, HoloLens, and PC accessories. Additionally, this segment provides gaming, which includes Xbox hardware and content, and first- and third-party content; Xbox game pass and other subscriptions, cloud gaming, advertising, third-party disc royalties, and other cloud services; and search and news advertising, which includes Bing, Microsoft News and Edge, and third-party affiliates. The company sells its products through OEMs, distributors, and resellers; and directly through digital marketplaces, online, and retail stores. The company was founded in 1975 and is headquartered in Redmond, Washington.', 'fullTimeEmployees': 228000, 'companyOfficers': [{'maxAge': 1, 'name': 'Mr. Satya  Nadella', 'age': 56, 'title': 'Chairman & CEO', 'yearBorn': 1967, 'fiscalYear': 2023, 'totalPay': 9276400, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Bradford L. Smith LCA', 'age': 64, 'title': 'President & Vice Chairman', 'yearBorn': 1959, 'fiscalYear': 2023, 'totalPay': 3591277, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Amy E. Hood', 'age': 51, 'title': 'Executive VP & CFO', 'yearBorn': 1972, 'fiscalYear': 2023, 'totalPay': 3452196, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Judson B. Althoff', 'age': 50, 'title': 'Executive VP & Chief Commercial Officer', 'yearBorn': 1973, 'fiscalYear': 2023, 'totalPay': 3355797, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Christopher David Young', 'age': 51, 'title': 'Executive Vice President of Business Development, Strategy & Ventures', 'yearBorn': 1972, 'fiscalYear': 2023, 'totalPay': 2460507, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Alice L. Jolla', 'age': 57, 'title': 'Corporate VP & Chief Accounting Officer', 'yearBorn': 1966, 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. James Kevin Scott', 'age': 51, 'title': 'Executive VP of AI & CTO', 'yearBorn': 1972, 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Brett  Iversen', 'title': 'Vice President of Investor Relations', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Hossein  Nowbar', 'title': 'Chief Legal Officer', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Frank X. Shaw', 'title': 'Chief Communications Officer', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}], 'auditRisk': 3, 'boardRisk': 4, 'compensationRisk': 2, 'shareHolderRightsRisk': 2, 'overallRisk': 1, 'governanceEpochDate': 1725148800, 'compensationAsOfEpochDate': 1703980800, 'irWebsite': 'http://www.microsoft.com/investor/default.aspx', 'maxAge': 86400, 'priceHint': 2, 'previousClose': 405.72, 'open': 408.18, 'dayLow': 407.7, 'dayHigh': 416.33, 'regularMarketPreviousClose': 405.72, 'regularMarketOpen': 408.18, 'regularMarketDayLow': 407.7, 'regularMarketDayHigh': 416.33, 'dividendRate': 3.0, 'dividendYield': 0.0072000003, 'exDividendDate': 1723680000, 'payoutRatio': 0.2483, 'fiveYearAvgDividendYield': 0.9, 'beta': 0.896, 'trailingPE': 35.101696, 'forwardPE': 27.214191, 'volume': 19481468, 'regularMarketVolume': 19481468, 'averageVolume': 19887135, 'averageVolume10days': 17385160, 'averageDailyVolume10Day': 17385160, 'bid': 387.36, 'ask': 436.79, 'bidSize': 100, 'askSize': 100, 'marketCap': 3078765150208, 'fiftyTwoWeekLow': 309.45, 'fiftyTwoWeekHigh': 468.35, 'priceToSalesTrailing12Months': 12.560134, 'fiftyDayAverage': 426.4298, 'twoHundredDayAverage': 411.73825, 'trailingAnnualDividendRate': 3.0, 'trailingAnnualDividendYield': 0.007394262, 'currency': 'USD', 'enterpriseValue': 3101085401088, 'profitMargins': 0.35956, 'floatShares': 7422706458, 'sharesOutstanding': 7433039872, 'sharesShort': 54789102, 'sharesShortPriorMonth': 61931266, 'sharesShortPreviousMonthDate': 1721001600, 'dateShortInterest': 1723680000, 'sharesPercentSharesOut': 0.0074, 'heldPercentInsiders': 0.00054000004, 'heldPercentInstitutions': 0.73739, 'shortRatio': 2.37, 'shortPercentOfFloat': 0.0074, 'impliedSharesOutstanding': 7433039872, 'bookValue': 36.115, 'priceToBook': 11.468919, 'lastFiscalYearEnd': 1719705600, 'nextFiscalYearEnd': 1751241600, 'mostRecentQuarter': 1719705600, 'earningsQuarterlyGrowth': 0.097, 'netIncomeToCommon': 88135999488, 'trailingEps': 11.8, 'forwardEps': 15.22, 'pegRatio': 2.17, 'lastSplitFactor': '2:1', 'lastSplitDate': 1045526400, 'enterpriseToRevenue': 12.651, 'enterpriseToEbitda': 23.959, '52WeekChange': 0.23251796, 'SandP52WeekChange': 0.23012733, 'lastDividendValue': 0.75, 'lastDividendDate': 1723680000, 'exchange': 'NMS', 'quoteType': 'EQUITY', 'symbol': 'MSFT', 'underlyingSymbol': 'MSFT', 'shortName': 'Microsoft Corporation', 'longName': 'Microsoft Corporation', 'firstTradeDateEpochUtc': 511108200, 'timeZoneFullName': 'America/New_York', 'timeZoneShortName': 'EDT', 'uuid': 'b004b3ec-de24-385e-b2c1-923f10d3fb62', 'messageBoardId': 'finmb_21835', 'gmtOffSetMilliseconds': -14400000, 'currentPrice': 414.2, 'targetHighPrice': 600.0, 'targetLowPrice': 440.0, 'targetMeanPrice': 496.67, 'targetMedianPrice': 500.0, 'recommendationMean': 1.7, 'recommendationKey': 'buy', 'numberOfAnalystOpinions': 47, 'totalCash': 75531001856, 'totalCashPerShare': 10.162, 'ebitda': 129433001984, 'totalDebt': 97851998208, 'quickRatio': 1.141, 'currentRatio': 1.275, 'totalRevenue': 245122007040, 'debtToEquity': 36.447, 'revenuePerShare': 32.986, 'returnOnAssets': 0.14802, 'returnOnEquity': 0.37133, 'freeCashflow': 56705249280, 'operatingCashflow': 118547996672, 'earningsGrowth': 0.097, 'revenueGrowth': 0.152, 'grossMargins': 0.69764, 'ebitdaMargins': 0.52804, 'operatingMargins': 0.43143, 'financialCurrency': 'USD', 'trailingPegRatio': 2.2338}\u001b[0m\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `last_dividend_and_earnings_dates` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m{'Dividend Date': datetime.date(2024, 9, 12), 'Ex-Dividend Date': datetime.date(2024, 8, 15), 'Earnings Date': [datetime.date(2024, 10, 22), datetime.date(2024, 10, 28)], 'Earnings High': 3.19, 'Earnings Low': 2.96, 'Earnings Average': 3.1, 'Revenue High': 65196400000, 'Revenue Low': 64219400000, 'Revenue Average': 64494900000}\u001b[0m\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `last_dividend_and_earnings_dates` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m{'Dividend Date': datetime.date(2024, 9, 12), 'Ex-Dividend Date': datetime.date(2024, 8, 15), 'Earnings Date': [datetime.date(2024, 10, 22), datetime.date(2024, 10, 28)], 'Earnings High': 3.19, 'Earnings Low': 2.96, 'Earnings Average': 3.1, 'Revenue High': 65196400000, 'Revenue Low': 64219400000, 'Revenue Average': 64494900000}\u001b[0m\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `last_dividend_and_earnings_dates` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m{'Dividend Date': datetime.date(2024, 9, 12), 'Ex-Dividend Date': datetime.date(2024, 8, 15), 'Earnings Date': [datetime.date(2024, 10, 22), datetime.date(2024, 10, 28)], 'Earnings High': 3.19, 'Earnings Low': 2.96, 'Earnings Average': 3.1, 'Revenue High': 65196400000, 'Revenue Low': 64219400000, 'Revenue Average': 64494900000}\u001b[0m\u001b[32;1m\u001b[1;3mThe last close price of Microsoft (MSFT) is not available from the provided tools. However, the tool call id \"call_c59v\" yielded the company's information, which includes the previous close price of 405.72.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "C5Dj0YoXO6-A",
+        "outputId": "c4c9dcda-ca18-42c7-9773-0a9edfff0dd4"
+      },
+      "execution_count": 87,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "The last close price of Microsoft (MSFT) is not available from the provided tools. However, the tool call id \"call_c59v\" yielded the company's information, which includes the previous close price of 405.72.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"What is dividend yield for microsoft stock?\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "3hvvAlDGPHD-",
+        "outputId": "a5c7825d-5470-4702-d42b-65b77868e996"
+      },
+      "execution_count": 88,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `company_information` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[36;1m\u001b[1;3m{'address1': 'One Microsoft Way', 'city': 'Redmond', 'state': 'WA', 'zip': '98052-6399', 'country': 'United States', 'phone': '425 882 8080', 'website': 'https://www.microsoft.com', 'industry': 'Software - Infrastructure', 'industryKey': 'software-infrastructure', 'industryDisp': 'Software - Infrastructure', 'sector': 'Technology', 'sectorKey': 'technology', 'sectorDisp': 'Technology', 'longBusinessSummary': 'Microsoft Corporation develops and supports software, services, devices and solutions worldwide. The Productivity and Business Processes segment offers office, exchange, SharePoint, Microsoft Teams, office 365 Security and Compliance, Microsoft viva, and Microsoft 365 copilot; and office consumer services, such as Microsoft 365 consumer subscriptions, Office licensed on-premises, and other office services. This segment also provides LinkedIn; and dynamics business solutions, including Dynamics 365, a set of intelligent, cloud-based applications across ERP, CRM, power apps, and power automate; and on-premises ERP and CRM applications. The Intelligent Cloud segment offers server products and cloud services, such as azure and other cloud services; SQL and windows server, visual studio, system center, and related client access licenses, as well as nuance and GitHub; and enterprise services including enterprise support services, industry solutions, and nuance professional services. The More Personal Computing segment offers Windows, including windows OEM licensing and other non-volume licensing of the Windows operating system; Windows commercial comprising volume licensing of the Windows operating system, windows cloud services, and other Windows commercial offerings; patent licensing; and windows Internet of Things; and devices, such as surface, HoloLens, and PC accessories. Additionally, this segment provides gaming, which includes Xbox hardware and content, and first- and third-party content; Xbox game pass and other subscriptions, cloud gaming, advertising, third-party disc royalties, and other cloud services; and search and news advertising, which includes Bing, Microsoft News and Edge, and third-party affiliates. The company sells its products through OEMs, distributors, and resellers; and directly through digital marketplaces, online, and retail stores. The company was founded in 1975 and is headquartered in Redmond, Washington.', 'fullTimeEmployees': 228000, 'companyOfficers': [{'maxAge': 1, 'name': 'Mr. Satya  Nadella', 'age': 56, 'title': 'Chairman & CEO', 'yearBorn': 1967, 'fiscalYear': 2023, 'totalPay': 9276400, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Bradford L. Smith LCA', 'age': 64, 'title': 'President & Vice Chairman', 'yearBorn': 1959, 'fiscalYear': 2023, 'totalPay': 3591277, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Amy E. Hood', 'age': 51, 'title': 'Executive VP & CFO', 'yearBorn': 1972, 'fiscalYear': 2023, 'totalPay': 3452196, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Judson B. Althoff', 'age': 50, 'title': 'Executive VP & Chief Commercial Officer', 'yearBorn': 1973, 'fiscalYear': 2023, 'totalPay': 3355797, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Christopher David Young', 'age': 51, 'title': 'Executive Vice President of Business Development, Strategy & Ventures', 'yearBorn': 1972, 'fiscalYear': 2023, 'totalPay': 2460507, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Alice L. Jolla', 'age': 57, 'title': 'Corporate VP & Chief Accounting Officer', 'yearBorn': 1966, 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. James Kevin Scott', 'age': 51, 'title': 'Executive VP of AI & CTO', 'yearBorn': 1972, 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Brett  Iversen', 'title': 'Vice President of Investor Relations', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Hossein  Nowbar', 'title': 'Chief Legal Officer', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Frank X. Shaw', 'title': 'Chief Communications Officer', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}], 'auditRisk': 3, 'boardRisk': 4, 'compensationRisk': 2, 'shareHolderRightsRisk': 2, 'overallRisk': 1, 'governanceEpochDate': 1725148800, 'compensationAsOfEpochDate': 1703980800, 'irWebsite': 'http://www.microsoft.com/investor/default.aspx', 'maxAge': 86400, 'priceHint': 2, 'previousClose': 405.72, 'open': 408.18, 'dayLow': 407.7, 'dayHigh': 416.33, 'regularMarketPreviousClose': 405.72, 'regularMarketOpen': 408.18, 'regularMarketDayLow': 407.7, 'regularMarketDayHigh': 416.33, 'dividendRate': 3.0, 'dividendYield': 0.0072000003, 'exDividendDate': 1723680000, 'payoutRatio': 0.2483, 'fiveYearAvgDividendYield': 0.9, 'beta': 0.896, 'trailingPE': 35.101696, 'forwardPE': 27.214191, 'volume': 19481468, 'regularMarketVolume': 19481468, 'averageVolume': 19887135, 'averageVolume10days': 17385160, 'averageDailyVolume10Day': 17385160, 'bid': 387.36, 'ask': 436.79, 'bidSize': 100, 'askSize': 100, 'marketCap': 3078765150208, 'fiftyTwoWeekLow': 309.45, 'fiftyTwoWeekHigh': 468.35, 'priceToSalesTrailing12Months': 12.560134, 'fiftyDayAverage': 426.4298, 'twoHundredDayAverage': 411.73825, 'trailingAnnualDividendRate': 3.0, 'trailingAnnualDividendYield': 0.007394262, 'currency': 'USD', 'enterpriseValue': 3101085401088, 'profitMargins': 0.35956, 'floatShares': 7422706458, 'sharesOutstanding': 7433039872, 'sharesShort': 54789102, 'sharesShortPriorMonth': 61931266, 'sharesShortPreviousMonthDate': 1721001600, 'dateShortInterest': 1723680000, 'sharesPercentSharesOut': 0.0074, 'heldPercentInsiders': 0.00054000004, 'heldPercentInstitutions': 0.73739, 'shortRatio': 2.37, 'shortPercentOfFloat': 0.0074, 'impliedSharesOutstanding': 7433039872, 'bookValue': 36.115, 'priceToBook': 11.468919, 'lastFiscalYearEnd': 1719705600, 'nextFiscalYearEnd': 1751241600, 'mostRecentQuarter': 1719705600, 'earningsQuarterlyGrowth': 0.097, 'netIncomeToCommon': 88135999488, 'trailingEps': 11.8, 'forwardEps': 15.22, 'pegRatio': 2.17, 'lastSplitFactor': '2:1', 'lastSplitDate': 1045526400, 'enterpriseToRevenue': 12.651, 'enterpriseToEbitda': 23.959, '52WeekChange': 0.23251796, 'SandP52WeekChange': 0.23012733, 'lastDividendValue': 0.75, 'lastDividendDate': 1723680000, 'exchange': 'NMS', 'quoteType': 'EQUITY', 'symbol': 'MSFT', 'underlyingSymbol': 'MSFT', 'shortName': 'Microsoft Corporation', 'longName': 'Microsoft Corporation', 'firstTradeDateEpochUtc': 511108200, 'timeZoneFullName': 'America/New_York', 'timeZoneShortName': 'EDT', 'uuid': 'b004b3ec-de24-385e-b2c1-923f10d3fb62', 'messageBoardId': 'finmb_21835', 'gmtOffSetMilliseconds': -14400000, 'currentPrice': 414.2, 'targetHighPrice': 600.0, 'targetLowPrice': 440.0, 'targetMeanPrice': 496.67, 'targetMedianPrice': 500.0, 'recommendationMean': 1.7, 'recommendationKey': 'buy', 'numberOfAnalystOpinions': 47, 'totalCash': 75531001856, 'totalCashPerShare': 10.162, 'ebitda': 129433001984, 'totalDebt': 97851998208, 'quickRatio': 1.141, 'currentRatio': 1.275, 'totalRevenue': 245122007040, 'debtToEquity': 36.447, 'revenuePerShare': 32.986, 'returnOnAssets': 0.14802, 'returnOnEquity': 0.37133, 'freeCashflow': 56705249280, 'operatingCashflow': 118547996672, 'earningsGrowth': 0.097, 'revenueGrowth': 0.152, 'grossMargins': 0.69764, 'ebitdaMargins': 0.52804, 'operatingMargins': 0.43143, 'financialCurrency': 'USD', 'trailingPegRatio': 2.2338}\u001b[0m\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `last_dividend_and_earnings_dates` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m{'Dividend Date': datetime.date(2024, 9, 12), 'Ex-Dividend Date': datetime.date(2024, 8, 15), 'Earnings Date': [datetime.date(2024, 10, 22), datetime.date(2024, 10, 28)], 'Earnings High': 3.19, 'Earnings Low': 2.96, 'Earnings Average': 3.1, 'Revenue High': 65196400000, 'Revenue Low': 64219400000, 'Revenue Average': 64494900000}\u001b[0m\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `last_dividend_and_earnings_dates` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m{'Dividend Date': datetime.date(2024, 9, 12), 'Ex-Dividend Date': datetime.date(2024, 8, 15), 'Earnings Date': [datetime.date(2024, 10, 22), datetime.date(2024, 10, 28)], 'Earnings High': 3.19, 'Earnings Low': 2.96, 'Earnings Average': 3.1, 'Revenue High': 65196400000, 'Revenue Low': 64219400000, 'Revenue Average': 64494900000}\u001b[0m\u001b[32;1m\u001b[1;3mThe dividend yield for Microsoft stock is 0.0072.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "DOuzFRZeQe34",
+        "outputId": "de3741fc-a890-44a0-ef18-9cd5417bd9d5"
+      },
+      "execution_count": 89,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "The dividend yield for Microsoft stock is 0.0072.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"What are ebitda, total debt, total revenue and debt-to-equity for Nvidia stock?\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "SeuImCaCRATu",
+        "outputId": "c7152fff-f9d3-4480-c30f-c9e8be34d0b7"
+      },
+      "execution_count": 90,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `company_information` with `{'ticker': 'NVDA'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[36;1m\u001b[1;3m{'address1': '2788 San Tomas Expressway', 'city': 'Santa Clara', 'state': 'CA', 'zip': '95051', 'country': 'United States', 'phone': '408 486 2000', 'website': 'https://www.nvidia.com', 'industry': 'Semiconductors', 'industryKey': 'semiconductors', 'industryDisp': 'Semiconductors', 'sector': 'Technology', 'sectorKey': 'technology', 'sectorDisp': 'Technology', 'longBusinessSummary': \"NVIDIA Corporation provides graphics and compute and networking solutions in the United States, Taiwan, China, Hong Kong, and internationally. The Graphics segment offers GeForce GPUs for gaming and PCs, the GeForce NOW game streaming service and related infrastructure, and solutions for gaming platforms; Quadro/NVIDIA RTX GPUs for enterprise workstation graphics; virtual GPU or vGPU software for cloud-based visual and virtual computing; automotive platforms for infotainment systems; and Omniverse software for building and operating metaverse and 3D internet applications. The Compute & Networking segment comprises Data Center computing platforms and end-to-end networking platforms, including Quantum for InfiniBand and Spectrum for Ethernet; NVIDIA DRIVE automated-driving platform and automotive development agreements; Jetson robotics and other embedded platforms; NVIDIA AI Enterprise and other software; and DGX Cloud software and services. The company's products are used in gaming, professional visualization, data center, and automotive markets. It sells its products to original equipment manufacturers, original device manufacturers, system integrators and distributors, independent software vendors, cloud service providers, consumer internet companies, add-in board manufacturers, distributors, automotive manufacturers and tier-1 automotive suppliers, and other ecosystem participants. NVIDIA Corporation was incorporated in 1993 and is headquartered in Santa Clara, California.\", 'fullTimeEmployees': 29600, 'companyOfficers': [{'maxAge': 1, 'name': 'Mr. Jen-Hsun  Huang', 'age': 60, 'title': 'Co-Founder, CEO, President & Director', 'yearBorn': 1963, 'fiscalYear': 2024, 'totalPay': 7491487, 'exercisedValue': 217327152, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Colette M. Kress', 'age': 56, 'title': 'Executive VP & CFO', 'yearBorn': 1967, 'fiscalYear': 2024, 'totalPay': 1510765, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Debora  Shoquist', 'age': 68, 'title': 'Executive Vice President of Operations', 'yearBorn': 1955, 'fiscalYear': 2024, 'totalPay': 1371266, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Timothy S. Teter', 'age': 56, 'title': 'Executive VP, General Counsel & Secretary', 'yearBorn': 1967, 'fiscalYear': 2024, 'totalPay': 1360939, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Ajay K. Puri', 'age': 68, 'title': 'Executive Vice President of Worldwide Field Operations', 'yearBorn': 1955, 'fiscalYear': 2024, 'totalPay': 2295097, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Chris A. Malachowsky', 'title': 'Co-Founder', 'fiscalYear': 2024, 'totalPay': 320000, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Donald F. Robertson Jr.', 'age': 54, 'title': 'VP & Chief Accounting Officer', 'yearBorn': 1969, 'fiscalYear': 2024, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Prof. William J. Dally Ph.D.', 'age': 62, 'title': 'Chief Scientist & Senior VP of Research', 'yearBorn': 1961, 'fiscalYear': 2024, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Mylene  Mangalindan', 'title': 'VP of Corporate Communications', 'fiscalYear': 2024, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Tommy  Lee', 'title': 'Senior Vice President of Systems Engineering & Application', 'fiscalYear': 2024, 'exercisedValue': 0, 'unexercisedValue': 0}], 'auditRisk': 7, 'boardRisk': 10, 'compensationRisk': 4, 'shareHolderRightsRisk': 6, 'overallRisk': 8, 'governanceEpochDate': 1725148800, 'compensationAsOfEpochDate': 1735603200, 'irWebsite': 'http://phx.corporate-ir.net/phoenix.zhtml?c=116466&p=irol-IRHome', 'maxAge': 86400, 'priceHint': 2, 'previousClose': 106.47, 'open': 107.91, 'dayLow': 104.95, 'dayHigh': 109.4, 'regularMarketPreviousClose': 106.47, 'regularMarketOpen': 107.91, 'regularMarketDayLow': 104.95, 'regularMarketDayHigh': 109.4, 'dividendRate': 0.04, 'dividendYield': 0.0004, 'exDividendDate': 1726099200, 'payoutRatio': 0.010299999, 'fiveYearAvgDividendYield': 0.1, 'beta': 1.673, 'trailingPE': 50.75117, 'forwardPE': 26.957603, 'volume': 262335713, 'regularMarketVolume': 262335713, 'averageVolume': 340018296, 'averageVolume10days': 364971340, 'averageDailyVolume10Day': 364971340, 'bid': 103.0, 'ask': 113.26, 'bidSize': 100, 'askSize': 100, 'marketCap': 2651692990464, 'fiftyTwoWeekLow': 39.23, 'fiftyTwoWeekHigh': 140.76, 'priceToSalesTrailing12Months': 27.53375, 'fiftyDayAverage': 117.9516, 'twoHundredDayAverage': 89.6864, 'trailingAnnualDividendRate': 0.022, 'trailingAnnualDividendYield': 0.00020663097, 'currency': 'USD', 'enterpriseValue': 2626908061696, 'profitMargins': 0.55041003, 'floatShares': 23538742700, 'sharesOutstanding': 24529999872, 'sharesShort': 293539007, 'sharesShortPriorMonth': 280295880, 'sharesShortPreviousMonthDate': 1721001600, 'dateShortInterest': 1723680000, 'sharesPercentSharesOut': 0.012, 'heldPercentInsiders': 0.04298, 'heldPercentInstitutions': 0.66875, 'shortRatio': 0.84, 'shortPercentOfFloat': 0.0125, 'impliedSharesOutstanding': 25579499520, 'bookValue': 2.368, 'priceToBook': 45.650337, 'lastFiscalYearEnd': 1706400000, 'nextFiscalYearEnd': 1738022400, 'mostRecentQuarter': 1722124800, 'earningsQuarterlyGrowth': 1.682, 'netIncomeToCommon': 53007998976, 'trailingEps': 2.13, 'forwardEps': 4.01, 'pegRatio': 0.72, 'lastSplitFactor': '10:1', 'lastSplitDate': 1717977600, 'enterpriseToRevenue': 27.276, 'enterpriseToEbitda': 42.935, '52WeekChange': 1.3766077, 'SandP52WeekChange': 0.23012733, 'lastDividendValue': 0.01, 'lastDividendDate': 1718064000, 'exchange': 'NMS', 'quoteType': 'EQUITY', 'symbol': 'NVDA', 'underlyingSymbol': 'NVDA', 'shortName': 'NVIDIA Corporation', 'longName': 'NVIDIA Corporation', 'firstTradeDateEpochUtc': 917015400, 'timeZoneFullName': 'America/New_York', 'timeZoneShortName': 'EDT', 'uuid': '7f5f6a07-b148-30f4-98a2-2caa3df2aed0', 'messageBoardId': 'finmb_32307', 'gmtOffSetMilliseconds': -14400000, 'currentPrice': 108.1, 'targetHighPrice': 200.0, 'targetLowPrice': 56.01, 'targetMeanPrice': 144.84, 'targetMedianPrice': 149.0, 'recommendationMean': 1.8, 'recommendationKey': 'buy', 'numberOfAnalystOpinions': 50, 'totalCash': 34800001024, 'totalCashPerShare': 1.419, 'ebitda': 61184000000, 'totalDebt': 10014999552, 'quickRatio': 3.503, 'currentRatio': 4.269, 'totalRevenue': 96307003392, 'debtToEquity': 17.221, 'revenuePerShare': 3.91, 'returnOnAssets': 0.55258, 'returnOnEquity': 1.23767, 'freeCashflow': 33725874176, 'operatingCashflow': 48663998464, 'earningsGrowth': 1.68, 'revenueGrowth': 1.224, 'grossMargins': 0.75975996, 'ebitdaMargins': 0.6353, 'operatingMargins': 0.62057, 'financialCurrency': 'USD', 'trailingPegRatio': 1.1622}\u001b[0m\u001b[32;1m\u001b[1;3mBased on the provided information, here are the values for ebitda, total debt, total revenue, and debt-to-equity for Nvidia stock:\n",
+            "\n",
+            "* EBITDA: 61.184 billion\n",
+            "* Total Debt: 10.014 billion\n",
+            "* Total Revenue: 96.307 billion\n",
+            "* Debt-to-Equity: 17.22\n",
+            "\n",
+            "Please note that these values are based on the provided data and may not reflect the current or exact values.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "dkoByG0GRDkE",
+        "outputId": "78e6a3b9-5eef-4d27-b7fe-e5aec20c5bac"
+      },
+      "execution_count": 91,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Based on the provided information, here are the values for ebitda, total debt, total revenue, and debt-to-equity for Nvidia stock:\n",
+            "\n",
+            "* EBITDA: 61.184 billion\n",
+            "* Total Debt: 10.014 billion\n",
+            "* Total Revenue: 96.307 billion\n",
+            "* Debt-to-Equity: 17.22\n",
+            "\n",
+            "Please note that these values are based on the provided data and may not reflect the current or exact values.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"Summarize Key people at apple\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "rfBE6j9XRHzA",
+        "outputId": "cf8c9579-2d7d-4535-eb6d-3219d7717e9a"
+      },
+      "execution_count": 92,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `company_information` with `{'ticker': 'AAPL'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[36;1m\u001b[1;3m{'address1': 'One Apple Park Way', 'city': 'Cupertino', 'state': 'CA', 'zip': '95014', 'country': 'United States', 'phone': '408 996 1010', 'website': 'https://www.apple.com', 'industry': 'Consumer Electronics', 'industryKey': 'consumer-electronics', 'industryDisp': 'Consumer Electronics', 'sector': 'Technology', 'sectorKey': 'technology', 'sectorDisp': 'Technology', 'longBusinessSummary': 'Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, a line of smartphones; Mac, a line of personal computers; iPad, a line of multi-purpose tablets; and wearables, home, and accessories comprising AirPods, Apple TV, Apple Watch, Beats products, and HomePod. It also provides AppleCare support and cloud services; and operates various platforms, including the App Store that allow customers to discover and download applications and digital content, such as books, music, video, games, and podcasts. In addition, the company offers various services, such as Apple Arcade, a game subscription service; Apple Fitness+, a personalized fitness service; Apple Music, which offers users a curated listening experience with on-demand radio stations; Apple News+, a subscription news and magazine service; Apple TV+, which offers exclusive original content; Apple Card, a co-branded credit card; and Apple Pay, a cashless payment service, as well as licenses its intellectual property. The company serves consumers, and small and mid-sized businesses; and the education, enterprise, and government markets. It distributes third-party applications for its products through the App Store. The company also sells its products through its retail and online stores, and direct sales force; and third-party cellular network carriers, wholesalers, retailers, and resellers. Apple Inc. was founded in 1976 and is headquartered in Cupertino, California.', 'fullTimeEmployees': 161000, 'companyOfficers': [{'maxAge': 1, 'name': 'Mr. Timothy D. Cook', 'age': 62, 'title': 'CEO & Director', 'yearBorn': 1961, 'fiscalYear': 2023, 'totalPay': 16239562, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Luca  Maestri', 'age': 60, 'title': 'CFO & Senior VP', 'yearBorn': 1963, 'fiscalYear': 2023, 'totalPay': 4612242, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Jeffrey E. Williams', 'age': 59, 'title': 'Chief Operating Officer', 'yearBorn': 1964, 'fiscalYear': 2023, 'totalPay': 4637585, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Ms. Katherine L. Adams', 'age': 59, 'title': 'Senior VP, General Counsel & Secretary', 'yearBorn': 1964, 'fiscalYear': 2023, 'totalPay': 4618064, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': \"Ms. Deirdre  O'Brien\", 'age': 56, 'title': 'Senior Vice President of Retail', 'yearBorn': 1967, 'fiscalYear': 2023, 'totalPay': 4613369, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Chris  Kondo', 'title': 'Senior Director of Corporate Accounting', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. James  Wilson', 'title': 'Chief Technology Officer', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Suhasini  Chandramouli', 'title': 'Director of Investor Relations', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Greg  Joswiak', 'title': 'Senior Vice President of Worldwide Marketing', 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}, {'maxAge': 1, 'name': 'Mr. Adrian  Perica', 'age': 49, 'title': 'Head of Corporate Development', 'yearBorn': 1974, 'fiscalYear': 2023, 'exercisedValue': 0, 'unexercisedValue': 0}], 'auditRisk': 6, 'boardRisk': 1, 'compensationRisk': 2, 'shareHolderRightsRisk': 1, 'overallRisk': 1, 'governanceEpochDate': 1725148800, 'compensationAsOfEpochDate': 1703980800, 'irWebsite': 'http://investor.apple.com/', 'maxAge': 86400, 'priceHint': 2, 'previousClose': 220.91, 'open': 218.885, 'dayLow': 216.73, 'dayHigh': 221.48, 'regularMarketPreviousClose': 220.91, 'regularMarketOpen': 218.885, 'regularMarketDayLow': 216.73, 'regularMarketDayHigh': 221.48, 'dividendRate': 1.0, 'dividendYield': 0.0045, 'exDividendDate': 1723420800, 'payoutRatio': 0.1476, 'fiveYearAvgDividendYield': 0.66, 'beta': 1.24, 'trailingPE': 33.553352, 'forwardPE': 29.42647, 'volume': 51215441, 'regularMarketVolume': 51215441, 'averageVolume': 60998738, 'averageVolume10days': 47668420, 'averageDailyVolume10Day': 47668420, 'bid': 220.26, 'ask': 229.85, 'bidSize': 200, 'askSize': 100, 'marketCap': 3346574606336, 'fiftyTwoWeekLow': 164.08, 'fiftyTwoWeekHigh': 237.23, 'priceToSalesTrailing12Months': 8.678808, 'fiftyDayAverage': 222.901, 'twoHundredDayAverage': 195.06125, 'trailingAnnualDividendRate': 0.97, 'trailingAnnualDividendYield': 0.0043909284, 'currency': 'USD', 'enterpriseValue': 3386085474304, 'profitMargins': 0.26441, 'floatShares': 15179810381, 'sharesOutstanding': 15204100096, 'sharesShort': 121598771, 'sharesShortPriorMonth': 135383184, 'sharesShortPreviousMonthDate': 1721001600, 'dateShortInterest': 1723680000, 'sharesPercentSharesOut': 0.008, 'heldPercentInsiders': 0.02703, 'heldPercentInstitutions': 0.6088, 'shortRatio': 2.19, 'shortPercentOfFloat': 0.008, 'impliedSharesOutstanding': 15259400192, 'bookValue': 4.382, 'priceToBook': 50.230488, 'lastFiscalYearEnd': 1696032000, 'nextFiscalYearEnd': 1727654400, 'mostRecentQuarter': 1719619200, 'earningsQuarterlyGrowth': 0.079, 'netIncomeToCommon': 101956001792, 'trailingEps': 6.56, 'forwardEps': 7.48, 'pegRatio': 2.96, 'lastSplitFactor': '4:1', 'lastSplitDate': 1598832000, 'enterpriseToRevenue': 8.781, 'enterpriseToEbitda': 25.695, '52WeekChange': 0.26347506, 'SandP52WeekChange': 0.23012733, 'lastDividendValue': 0.25, 'lastDividendDate': 1723420800, 'exchange': 'NMS', 'quoteType': 'EQUITY', 'symbol': 'AAPL', 'underlyingSymbol': 'AAPL', 'shortName': 'Apple Inc.', 'longName': 'Apple Inc.', 'firstTradeDateEpochUtc': 345479400, 'timeZoneFullName': 'America/New_York', 'timeZoneShortName': 'EDT', 'uuid': '8b10e4ae-9eeb-3684-921a-9ab27e4d87aa', 'messageBoardId': 'finmb_24937', 'gmtOffSetMilliseconds': -14400000, 'currentPrice': 220.11, 'targetHighPrice': 300.0, 'targetLowPrice': 183.86, 'targetMeanPrice': 240.58, 'targetMedianPrice': 243.0, 'recommendationMean': 2.0, 'recommendationKey': 'buy', 'numberOfAnalystOpinions': 40, 'totalCash': 61801000960, 'totalCashPerShare': 4.065, 'ebitda': 131781001216, 'totalDebt': 101304000512, 'quickRatio': 0.798, 'currentRatio': 0.953, 'totalRevenue': 385603010560, 'debtToEquity': 151.862, 'revenuePerShare': 24.957, 'returnOnAssets': 0.22612, 'returnOnEquity': 1.60583, 'freeCashflow': 86158123008, 'operatingCashflow': 113040998400, 'earningsGrowth': 0.111, 'revenueGrowth': 0.049, 'grossMargins': 0.45962003, 'ebitdaMargins': 0.34175, 'operatingMargins': 0.29556, 'financialCurrency': 'USD', 'trailingPegRatio': 2.1125}\u001b[0m\u001b[32;1m\u001b[1;3mBased on the output from the tool, here is a summary of the key people at Apple:\n",
+            "\n",
+            "* CEO: Tim Cook\n",
+            "* CFO: Luca Maestri\n",
+            "* Chief Operating Officer: Jeffrey E. Williams\n",
+            "* Senior VP, General Counsel & Secretary: Katherine L. Adams\n",
+            "* Senior Vice President of Retail: Deirdre O'Brien\n",
+            "* Chief Technology Officer: James Wilson\n",
+            "* Director of Investor Relations: Suhasini Chandramouli\n",
+            "* Senior Vice President of Worldwide Marketing: Greg Joswiak\n",
+            "* Head of Corporate Development: Adrian Perica\n",
+            "\n",
+            "Note that this information is based on the company's latest available data and may not reflect the current leadership team.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "bqJ4U5dmRLVk",
+        "outputId": "0283b123-d928-43e3-adb6-8e0701924b2a"
+      },
+      "execution_count": 93,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Based on the output from the tool, here is a summary of the key people at Apple:\n",
+            "\n",
+            "* CEO: Tim Cook\n",
+            "* CFO: Luca Maestri\n",
+            "* Chief Operating Officer: Jeffrey E. Williams\n",
+            "* Senior VP, General Counsel & Secretary: Katherine L. Adams\n",
+            "* Senior Vice President of Retail: Deirdre O'Brien\n",
+            "* Chief Technology Officer: James Wilson\n",
+            "* Director of Investor Relations: Suhasini Chandramouli\n",
+            "* Senior Vice President of Worldwide Marketing: Greg Joswiak\n",
+            "* Head of Corporate Development: Adrian Perica\n",
+            "\n",
+            "Note that this information is based on the company's latest available data and may not reflect the current leadership team.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"What was last dividend date for apple stock?\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "m91Bs11ERPnX",
+        "outputId": "9864d448-8acb-4026-f492-7863053466e2"
+      },
+      "execution_count": 94,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `last_dividend_and_earnings_dates` with `{'ticker': 'AAPL'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m{'Dividend Date': datetime.date(2024, 8, 15), 'Ex-Dividend Date': datetime.date(2024, 8, 12), 'Earnings Date': [datetime.date(2024, 10, 31), datetime.date(2024, 11, 4)], 'Earnings High': 1.65, 'Earnings Low': 1.53, 'Earnings Average': 1.6, 'Revenue High': 97945300000, 'Revenue Low': 93653000000, 'Revenue Average': 94410100000}\u001b[0m\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `last_dividend_and_earnings_dates` with `{'ticker': 'AAPL'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m{'Dividend Date': datetime.date(2024, 8, 15), 'Ex-Dividend Date': datetime.date(2024, 8, 12), 'Earnings Date': [datetime.date(2024, 10, 31), datetime.date(2024, 11, 4)], 'Earnings High': 1.65, 'Earnings Low': 1.53, 'Earnings Average': 1.6, 'Revenue High': 97945300000, 'Revenue Low': 93653000000, 'Revenue Average': 94410100000}\u001b[0m\u001b[32;1m\u001b[1;3mThe last dividend date for Apple stock was August 15, 2024.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "n0WrtlwyRS70",
+        "outputId": "514d5ff7-76ff-4a32-e835-1b506aae1720"
+      },
+      "execution_count": 95,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "The last dividend date for Apple stock was August 15, 2024.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"Top mutual fund holders of microsoft stock.\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "IDv8IjyPRWeK",
+        "outputId": "78599e42-4cbe-46a4-94cd-2a8da8ab8335"
+      },
+      "execution_count": 96,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `summary_of_mutual_fund_holders` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[36;1m\u001b[1;3m[{'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Vanguard Total Stock Market Index Fund', 'pctHeld': 0.0312, 'Shares': 231883087, 'Value': 78965466446}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Vanguard 500 Index Fund', 'pctHeld': 0.0238, 'Shares': 177034936, 'Value': 60287477105}, {'Date Reported': Timestamp('2023-08-31 00:00:00'), 'Holder': 'Fidelity 500 Index Fund', 'pctHeld': 0.0115, 'Shares': 85181943, 'Value': 27919233637}, {'Date Reported': Timestamp('2023-09-30 00:00:00'), 'Holder': 'SPDR S&P 500 ETF Trust', 'pctHeld': 0.0112, 'Shares': 83514381, 'Value': 26369665800}, {'Date Reported': Timestamp('2023-09-30 00:00:00'), 'Holder': 'iShares Core S&P 500 ETF', 'pctHeld': 0.0095, 'Shares': 70264910, 'Value': 22186145332}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Vanguard Growth Index Fund', 'pctHeld': 0.0085, 'Shares': 63262454, 'Value': 21543396085}, {'Date Reported': Timestamp('2023-08-31 00:00:00'), 'Holder': 'Invesco ETF Tr-Invesco QQQ Tr, Series 1 ETF', 'pctHeld': 0.007900001, 'Shares': 58757680, 'Value': 19258417196}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Vanguard Institutional Index Fund-Institutional Index Fund', 'pctHeld': 0.0068, 'Shares': 50756950, 'Value': 17284771753}, {'Date Reported': Timestamp('2023-08-31 00:00:00'), 'Holder': 'Vanguard Information Technology Index Fund', 'pctHeld': 0.0053, 'Shares': 39119308, 'Value': 12821744390}, {'Date Reported': Timestamp('2023-09-30 00:00:00'), 'Holder': 'Growth Fund Of America Inc', 'pctHeld': 0.0053, 'Shares': 39310503, 'Value': 12412291322}]\u001b[0m\u001b[32;1m\u001b[1;3mThe top mutual fund holders of Microsoft stock are:\n",
+            "\n",
+            "1. Vanguard Total Stock Market Index Fund - 3.12% of shares\n",
+            "2. Vanguard 500 Index Fund - 2.38% of shares\n",
+            "3. Fidelity 500 Index Fund - 1.15% of shares\n",
+            "4. SPDR S&P 500 ETF Trust - 1.12% of shares\n",
+            "5. iShares Core S&P 500 ETF - 0.95% of shares\n",
+            "\n",
+            "Note: The percentages and share values are based on the data provided and may not reflect the current holdings.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Ptc41MezRbMX",
+        "outputId": "11d9e627-abf9-4f94-f94f-41259dda38ae"
+      },
+      "execution_count": 97,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "The top mutual fund holders of Microsoft stock are:\n",
+            "\n",
+            "1. Vanguard Total Stock Market Index Fund - 3.12% of shares\n",
+            "2. Vanguard 500 Index Fund - 2.38% of shares\n",
+            "3. Fidelity 500 Index Fund - 1.15% of shares\n",
+            "4. SPDR S&P 500 ETF Trust - 1.12% of shares\n",
+            "5. iShares Core S&P 500 ETF - 0.95% of shares\n",
+            "\n",
+            "Note: The percentages and share values are based on the data provided and may not reflect the current holdings.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"Top institutional holders of microsoft stock.\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "TGxEJHFKRggG",
+        "outputId": "59e1e563-2bfb-4759-e429-3f428b08d4f5"
+      },
+      "execution_count": 98,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `summary_of_institutional_holders` with `{'ticker': 'MSFT'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[33;1m\u001b[1;3m[{'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Vanguard Group Inc', 'pctHeld': 0.0879, 'Shares': 653247546, 'Value': 222456919314}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Blackrock Inc.', 'pctHeld': 0.0722, 'Shares': 536245027, 'Value': 182612881494}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'State Street Corporation', 'pctHeld': 0.0395, 'Shares': 293614078, 'Value': 99987338122}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'FMR, LLC', 'pctHeld': 0.028299998, 'Shares': 210111250, 'Value': 71551285075}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Price (T.Rowe) Associates Inc', 'pctHeld': 0.0215, 'Shares': 159904219, 'Value': 54453782738}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Geode Capital Management, LLC', 'pctHeld': 0.0199, 'Shares': 148129470, 'Value': 50444009713}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Morgan Stanley', 'pctHeld': 0.0166, 'Shares': 123498322, 'Value': 42056118573}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'JP Morgan Chase & Company', 'pctHeld': 0.0152, 'Shares': 113024837, 'Value': 38489477991}, {'Date Reported': Timestamp('2022-12-31 00:00:00'), 'Holder': 'Norges Bank Investment Management', 'pctHeld': 0.0116, 'Shares': 86316926, 'Value': 20700525193}, {'Date Reported': Timestamp('2023-06-30 00:00:00'), 'Holder': 'Capital World Investors', 'pctHeld': 0.0115, 'Shares': 85507261, 'Value': 29118642660}]\u001b[0m\u001b[32;1m\u001b[1;3m<tool-use>{\"tool_calls\":[]}</tool-use>\n",
+            "\n",
+            "Top institutional holders of Microsoft stock are:\n",
+            "\n",
+            "1. Vanguard Group Inc - 8.79% of shares\n",
+            "2. Blackrock Inc. - 7.22% of shares\n",
+            "3. State Street Corporation - 3.95% of shares\n",
+            "4. FMR, LLC - 2.83% of shares\n",
+            "5. Price (T.Rowe) Associates Inc - 2.15% of shares\n",
+            "6. Geode Capital Management, LLC - 1.99% of shares\n",
+            "7. Morgan Stanley - 1.66% of shares\n",
+            "8. JP Morgan Chase & Company - 1.52% of shares\n",
+            "9. Norges Bank Investment Management - 1.16% of shares\n",
+            "10. Capital World Investors - 1.15% of shares\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "dp-9I8x8Rk54",
+        "outputId": "9e782dcd-a839-4ad3-9ef0-1dcb8f0f1234"
+      },
+      "execution_count": 99,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "<tool-use>{\"tool_calls\":[]}</tool-use>\n",
+            "\n",
+            "Top institutional holders of Microsoft stock are:\n",
+            "\n",
+            "1. Vanguard Group Inc - 8.79% of shares\n",
+            "2. Blackrock Inc. - 7.22% of shares\n",
+            "3. State Street Corporation - 3.95% of shares\n",
+            "4. FMR, LLC - 2.83% of shares\n",
+            "5. Price (T.Rowe) Associates Inc - 2.15% of shares\n",
+            "6. Geode Capital Management, LLC - 1.99% of shares\n",
+            "7. Morgan Stanley - 1.66% of shares\n",
+            "8. JP Morgan Chase & Company - 1.52% of shares\n",
+            "9. Norges Bank Investment Management - 1.16% of shares\n",
+            "10. Capital World Investors - 1.15% of shares\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resp = finance_agent_executor.invoke({\"messages\": [HumanMessage(content=\"Which firms recently changed grade of apple stock? Also, return rating changes.\")]})"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "rytoUIGcRo1L",
+        "outputId": "8fc4b7bf-5ae6-4723-e7e9-aa733897d4eb"
+      },
+      "execution_count": 100,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\n",
+            "\u001b[1m> Entering new AgentExecutor chain...\u001b[0m\n",
+            "\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `stock_grade_updrages_downgrades` with `{'ticker': 'AAPL'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[38;5;200m\u001b[1;3m[{'Firm': 'Loop Capital', 'ToGrade': 'Buy', 'FromGrade': 'Hold', 'Action': 'up'}, {'Firm': 'Rosenblatt', 'ToGrade': 'Buy', 'FromGrade': 'Neutral', 'Action': 'up'}, {'Firm': 'Erste Group', 'ToGrade': 'Buy', 'FromGrade': 'Hold', 'Action': 'up'}, {'Firm': 'DA Davidson', 'ToGrade': 'Buy', 'FromGrade': 'Neutral', 'Action': 'up'}, {'Firm': 'Itau BBA', 'ToGrade': 'Market Perform', 'FromGrade': 'Underperform', 'Action': 'up'}, {'Firm': 'Bernstein', 'ToGrade': 'Outperform', 'FromGrade': 'Market Perform', 'Action': 'up'}, {'Firm': 'DZ Bank', 'ToGrade': 'Hold', 'FromGrade': 'Buy', 'Action': 'down'}, {'Firm': 'B of A Securities', 'ToGrade': 'Buy', 'FromGrade': 'Neutral', 'Action': 'up'}, {'Firm': 'Redburn Atlantic', 'ToGrade': 'Neutral', 'FromGrade': 'Buy', 'Action': 'down'}, {'Firm': 'Piper Sandler', 'ToGrade': 'Neutral', 'FromGrade': 'Overweight', 'Action': 'down'}, {'Firm': 'Barclays', 'ToGrade': 'Underweight', 'FromGrade': 'Equal-Weight', 'Action': 'down'}]\u001b[0m\u001b[32;1m\u001b[1;3m\n",
+            "Invoking: `stock_grade_updrages_downgrades` with `{'ticker': 'AAPL'}`\n",
+            "\n",
+            "\n",
+            "\u001b[0m\u001b[38;5;200m\u001b[1;3m[{'Firm': 'Loop Capital', 'ToGrade': 'Buy', 'FromGrade': 'Hold', 'Action': 'up'}, {'Firm': 'Rosenblatt', 'ToGrade': 'Buy', 'FromGrade': 'Neutral', 'Action': 'up'}, {'Firm': 'Erste Group', 'ToGrade': 'Buy', 'FromGrade': 'Hold', 'Action': 'up'}, {'Firm': 'DA Davidson', 'ToGrade': 'Buy', 'FromGrade': 'Neutral', 'Action': 'up'}, {'Firm': 'Itau BBA', 'ToGrade': 'Market Perform', 'FromGrade': 'Underperform', 'Action': 'up'}, {'Firm': 'Bernstein', 'ToGrade': 'Outperform', 'FromGrade': 'Market Perform', 'Action': 'up'}, {'Firm': 'DZ Bank', 'ToGrade': 'Hold', 'FromGrade': 'Buy', 'Action': 'down'}, {'Firm': 'B of A Securities', 'ToGrade': 'Buy', 'FromGrade': 'Neutral', 'Action': 'up'}, {'Firm': 'Redburn Atlantic', 'ToGrade': 'Neutral', 'FromGrade': 'Buy', 'Action': 'down'}, {'Firm': 'Piper Sandler', 'ToGrade': 'Neutral', 'FromGrade': 'Overweight', 'Action': 'down'}, {'Firm': 'Barclays', 'ToGrade': 'Underweight', 'FromGrade': 'Equal-Weight', 'Action': 'down'}]\u001b[0m\u001b[32;1m\u001b[1;3mFirms that recently changed the grade of Apple stock (AAPL) include Loop Capital, Rosenblatt, Erste Group, DA Davidson, Itau BBA, Bernstein, DZ Bank, B of A Securities, Redburn Atlantic, Piper Sandler, and Barclays. The changes include upgrades from firms such as Loop Capital, Rosenblatt, Erste Group, DA Davidson, Itau BBA, and Bernstein, and downgrades from firms such as DZ Bank, Redburn Atlantic, Piper Sandler, and Barclays.\u001b[0m\n",
+            "\n",
+            "\u001b[1m> Finished chain.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(resp[\"output\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "KqjylnRsRsHv",
+        "outputId": "e18302be-8a70-477d-9226-f553bf2d7d21"
+      },
+      "execution_count": 101,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Firms that recently changed the grade of Apple stock (AAPL) include Loop Capital, Rosenblatt, Erste Group, DA Davidson, Itau BBA, Bernstein, DZ Bank, B of A Securities, Redburn Atlantic, Piper Sandler, and Barclays. The changes include upgrades from firms such as Loop Capital, Rosenblatt, Erste Group, DA Davidson, Itau BBA, and Bernstein, and downgrades from firms such as DZ Bank, Redburn Atlantic, Piper Sandler, and Barclays.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "2q4KW49pRwGO"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
