@@ -11,7 +11,7 @@ The predictive model predicts the price of a car based on various features.
 - [License](#license)
 - [Author](#author)
 - [Technologies Used](#technologies-used)
-- [Screenshots](#screenshots)
+
 
 ## Description
 The Car Price Prediction project involves building a predictive model to estimate the price of a car based on various features such as make, model, year, mileage, and more.
@@ -92,14 +92,3 @@ This project is licensed under the MIT License.
 - Matplotlib
 - Jupyter Notebook
 
-## Screenshots
-![Screenshot 1](path/to/screenshot1.png)
-![Screenshot 2](path/to/screenshot2.png)
-
-
-
-
-
-
-[Click here to see the live app on streamlit](
-https://carprediction-23.streamlit.app/)
